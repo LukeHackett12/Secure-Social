@@ -1,68 +1,143 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Secure Social Network
 
-## Available Scripts
+## Introduction
 
-In the project directory, you can run:
+For this assignment I chose to make my own social network using ReactJS. This
+website would allow people to login using Google or Facebook. After they have logged
+in/registered they are able to post from their profile page where there is a board of all posts
+on the site. They also have the capability to add contacts via the ‘Contacts’ page.
+All posts on the site are encrypted using AES symmetric keys. Each user has their
+own ‘post key’ which they encrypt their posts with. The encryption works by exchanging
+post keys between contacts securely, in such a way that no other party can read the posts.
+Below I will outline each stage of this process in more detail.
 
-### `yarn start`
+## Application Pages
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Login Page
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+The first thing the user does when they
+access the site is login. When it is their first
+time logging in, the users ‘post key’ is
+generated. The post key is a randomly
+generated AES-256 key. An RSA key pair is
+also generated for the user. This key pair is
+used to encrypt the post key when uploading
+the post key to the database.
 
-### `yarn test`
+The RSA key pair also needs to be
+uploaded to the database so it can persist
+between user sessions. This is done by
+encrypting the private key before uploading it
+to the database. To encrypt the private key, we use AES. The key used to encrypt the private
+key is generated based on the UID of the user, returned from the Oauth2 Google/Facebook
+login. This is not stored in the database and ensures that even if you have access to the full
+database you will not be able to access the private keys or post keys of any of the users.
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Profile Page
 
-### `yarn build`
+The profile page has two main components to it, Profile information and the site
+Posting Board. There is also a sidebar that is present in both the profile and contacts that
+enables you to navigate the site and see incoming friend requests. The Post board component
+listens for any incoming posts and will see if the post is from someone in your contacts. If the
+poster is a contact the message will be decrypted and displayed as plaintext. Otherwise, the
+cipher text will be displayed.
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The page also displays user info, such as email, name, and number of friends as seen
+below.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Contacts page
 
-### `yarn eject`
+From this page you can see
+any contacts you may have and also
+add contacts via the ‘Add Contact’
+button. This button opens a modal
+where you can add other users that
+have been registered on the site.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+_Add Contacts Modal_
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+This is where the contact
+request is made. This is done by
+updating the database document of the
+user that you want to be contacts with.
+There will be an entry made in the
+requests field with information about
+the user that has requested to be
+contacts. Once the request has been
+sent it is up to the other user to accept it
+before they are contacts.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Backend Functionality
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
+All data is stored in a Google Firestore database. The ReactJS based app has no built
+in backend, it mainly makes requests to the Firestore database through Google’s API. The
+Oauth sign in also uses firebase authentication to verify users on login.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Post Key Exchange
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+When a user requests to be contacts, this is when the exchange of the post keys
+happens. There are 3 main stages to this which I will outline bellow. For ease, the user
+sending the request is Alice, and Bob is the one accepting.
 
-### Code Splitting
+_Stage 1: Request Sent_
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+The web client need certain information to decrypt and display posts. This
+information consists of Alice’s Name, Email, Post Key, and Public Key. Importantly the Post
+Key is encrypted with Bob’s public key to ensure it is never stored in plain text when written
+to the ‘users’ collection in the database.
 
-### Analyzing the Bundle Size
+_Stage 2 : Request Received_
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+There is a listener in the client that will notify of any changes to the users data. When
+the request is written to the database Bob will therefore receive a notification that it is
+pending.
 
-### Making a Progressive Web App
+When Bob accepts this request, he will first set the data in his own document. The
+request was in an array of requests, now will be moved to the friends array. Next, he will
+encrypt his post key with Alice’s public key and store all necessary information in a new
+element of her friends array.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+_Stage 3: Send to database_
 
-### Advanced Configuration
+Once all this data is received and collated it is uploaded to the ‘users’ collection in the
+database and the exchange is finished. They are now able to communicate via the post board
+and will show up in each other’s contact list.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+The data in the database for each user is represented as follows:
 
-### Deployment
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+Post Encryption/Decryption
 
-### `yarn build` fails to minify
+_Encryption_
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+When posting, the user inputs the text that they want to post. Once they click the send
+button it is encrypted using their AES-256 key and uploaded to the ‘posts’ collection in the
+database. This collection is accessible to any user of the app so all users will be able to see
+who has posted and when. They will not be able to see the contents without the post key
+however.
+
+_Decryption_
+
+When the PostBoard component receives a new post it will check to see if the poster
+is a friend, and if so will decrypt with the post key that it has been given. The successfully
+decrypted message will be displayed. If the poster is not in the friends list, than the post will
+be displayed as encrypted text.
+
+
+The posts are stored in the database in the following format:
+
+## Code
+
+The code can be found on Github here:
+
+https://github.com/LukeHackett12/College/tree/master/3rd%20Year/Advanced%20Telecom
+munications/secure-social
+
+A recording of the site interactions can be found here:
+
+https://github.com/LukeHackett12/College/raw/master/3rd%20Year/Advanced%20Telecom
+munications/secure-social/Runthrough.mov
+
+
