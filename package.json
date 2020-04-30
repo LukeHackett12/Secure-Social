@@ -1,0 +1,61 @@
+{
+  "name": "secure-social",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "http://lukehackett12.github.io/secure-social/",
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.28",
+    "@fortawesome/free-solid-svg-icons": "^5.13.0",
+    "@fortawesome/react-fontawesome": "^0.1.9",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "aes-js": "^3.1.2",
+    "bootstrap": "^4.4.1",
+    "dotenv": "^8.2.0",
+    "firebase": "^7.12.0",
+    "firebase-admin": "^8.10.0",
+    "hybrid-crypto-js": "^0.2.2",
+    "matrix": "github:jasofalcon/matrix#master",
+    "next": "^9.3.1",
+    "react": "^16.13.1",
+    "react-bootstrap": "^1.0.0-beta.17",
+    "react-bootstrap-table-next": "^4.0.0",
+    "react-bootstrap-table2-paginator": "^2.1.2",
+    "react-dom": "^16.13.1",
+    "react-facebook-login": "^4.1.1",
+    "react-google-login": "^5.1.2",
+    "react-matrix-effect": "^1.1.0",
+    "react-modal": "^3.11.2",
+    "react-popup": "^0.10.0",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.4.0",
+    "reactjs-popup": "^1.5.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "set REACT_APP_firebase_api_key=AIzaSyBEbt8YqA2fnYO3hft3Z6yMZVyZ6w2IWeM && npm run build",
+    "deploy": "gh-pages -d build"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "gh-pages": "^2.2.0"
+  }
+}
