@@ -15,6 +15,8 @@ Below I will outline each stage of this process in more detail.
 
 Login Page
 
+![Login Page](https://i.imgur.com/DcGoEjc.png)
+
 The first thing the user does when they
 access the site is login. When it is their first
 time logging in, the users ‘post key’ is
@@ -35,6 +37,9 @@ database you will not be able to access the private keys or post keys of any of 
 
 Profile Page
 
+![Profile Page](https://i.imgur.com/TYq5Wrz.png)
+
+
 The profile page has two main components to it, Profile information and the site
 Posting Board. There is also a sidebar that is present in both the profile and contacts that
 enables you to navigate the site and see incoming friend requests. The Post board component
@@ -48,6 +53,9 @@ below.
 
 Contacts page
 
+![Contacts Page](https://i.imgur.com/8fwixFq.png)
+
+
 From this page you can see
 any contacts you may have and also
 add contacts via the ‘Add Contact’
@@ -56,6 +64,8 @@ where you can add other users that
 have been registered on the site.
 
 _Add Contacts Modal_
+
+![Add Contacts Modal](https://i.imgur.com/ofUmCXU.png)
 
 This is where the contact
 request is made. This is done by
@@ -69,7 +79,6 @@ sent it is up to the other user to accept it
 before they are contacts.
 
 ## Backend Functionality
-
 
 All data is stored in a Google Firestore database. The ReactJS based app has no built
 in backend, it mainly makes requests to the Firestore database through Google’s API. The
